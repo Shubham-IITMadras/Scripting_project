@@ -181,22 +181,21 @@
 </footer>
 
 
+<script src="script.js"></script>
 <script>
 
 async function loadDashboard(){
 
 try{
 
-const response = await fetch("http://localhost:5000/api/dashboard/stats")
+const data = await apiFetch("/dashboard/stats");
 
-const data = await response.json()
-
-document.getElementById("totalUsers").innerText = data.totalUsers
-document.getElementById("totalLibrarians").innerText = data.totalLibrarians
-document.getElementById("totalBooks").innerText = data.totalBooks
-document.getElementById("issuedBooks").innerText = data.issuedBooks
-document.getElementById("overdueBooks").innerText = data.overdueBooks
-document.getElementById("totalFines").innerText = "₹" + data.totalFines
+document.getElementById("totalUsers").innerText = data.data.totalUsers
+document.getElementById("totalLibrarians").innerText = data.data.totalLibrarians
+document.getElementById("totalBooks").innerText = data.data.totalBooks
+document.getElementById("issuedBooks").innerText = data.data.issuedBooks
+document.getElementById("overdueBooks").innerText = data.data.overdueBooks
+document.getElementById("totalFines").innerText = "₹" + data.data.totalFines
 
 }catch(err){
 
