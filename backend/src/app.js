@@ -8,6 +8,7 @@ import bookRouter from "./routers/book.routes.js"
 import borrowRouter from "./routers/borrowRecord.routes.js"
 import requestRouter from "./routers/request.routes.js"
 import notificationRouter from "./routers/notification.routes.js"
+import dashboardRouter from "./routers/dashboard.routes.js"
 
 dotenv.config({
     path: "./.env"
@@ -30,5 +31,6 @@ app.use("/api/books", bookRouter)
 app.use("/api/borrow", borrowRouter)
 app.use("/api/request", requestRouter)
 app.use("/api/notification", notificationRouter)
+app.use("/api/dashboard", dashboardRouter)
 
 export { app } 
