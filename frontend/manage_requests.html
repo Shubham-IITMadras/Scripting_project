@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANAGE REQUESTS | LMS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg" alt="logo">
+<img src="image copy 15.png" alt="logo1">
+</header>
+
+
+<nav class="navbar">
+
+<div class="user_details">
+<span><strong>Librarian:</strong> Krishna</span>
+</div>
+
+<div class="logout">
+<a href="login.html">Logout</a>
+</div>
+
+</nav>
+
+
+
+<main class="stu_fac_dashboard">
+
+<section class="welcome">
+<h2>Manage Requests 📩</h2>
+<p>Approve or reject book issue / return requests</p>
+</section>
+
+<!-- SEARCH BAR -->
+<section class="dashboard-search">
+<form class="dashboard-search-bar" id="searchRequestsForm">
+<input type="text" id="searchRequestsInput" class="dashboard-search-input" placeholder="Search by user, book, type, or status...">
+<button type="submit" class="dashboard-search-btn">🔍 Search</button>
+<button type="button" class="dashboard-reset-btn" id="resetRequestsBtn" title="Reset">✕</button>
+</form>
+</section>
+
+<section class="table_of_books">
+
+<h2>All Requests</h2>
+
+<table class="booktable">
+
+<thead>
+<tr>
+<th>User</th>
+<th>Book</th>
+<th>Type</th>
+<th>Status</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="requestTable">
+
+<tr>
+<td colspan="6">Loading...</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</section>
+
+</main>
+
+
+
+<footer class="library-footer">
+
+<div class="footer-container">
+
+<div class="footer-section">
+<h3>Library Management System</h3>
+<p>Your digital gateway to knowledge.</p>
+</div>
+
+<div class="footer-section">
+<h4>Quick Links</h4>
+<ul>
+<li><a href="librarian_dashboard.html">Dashboard</a></li>
+<li><a href="manage_requests.html">Requests</a></li>
+<li><a href="borrow_records.html">Borrow Records</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Contact</h4>
+<p>Email: library@lms.com</p>
+<p>Phone: +91 98765 43210</p>
+</div>
+
+</div>
+
+<div class="footer-bottom">
+<p>© 2026 LMS</p>
+</div>
+
+</footer>
+
+
+
+<script src="script.js"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    try {
+
+        const user = JSON.parse(localStorage.getItem("currentUser"));
+        if (user) {
+            // Update username displays
+            document.querySelector(".user_details").innerHTML = `
+                <span><strong>Librarian Name:</strong> ${user.fullName || user.username}</span>
+                <span><strong>Librarian ID:</strong> ${user._id.slice(-6).toUpperCase()}</span>
+            `;
+            document.querySelector(".welcome h2").textContent = `Welcome, ${user.fullName || user.username} 🙌`;
+        }
+
+        let allRequests = [];
+        const table = document.getElementById("requestTable");
+
+        function renderRequests(reqList) {
+            table.innerHTML = "";
+            if(reqList.length === 0){
+                table.innerHTML = `<tr><td colspan="6">No Requests Found</td></tr>`;
+                return;
+            }
+
+            reqList.forEach(req => {
+                const userName = req.user ? req.user.fullName : "Unknown";
+                const bookTitle = req.book ? req.book.title : "Unknown";
+                const date = new Date(req.createdAt).toLocaleDateString("en-IN");
+
+                let actionButtons = "";
+                if(req.status === "pending"){
+                    actionButtons = `
+                    <button class="approve" onclick="handleRequest('${req._id}','approved')">Approve</button>
+                    <button class="reject" onclick="handleRequest('${req._id}','rejected')">Reject</button>
+                    `;
+                }
+
+                table.innerHTML += `
+                <tr>
+                    <td>${userName}</td>
+                    <td>${bookTitle}</td>
+                    <td style="text-transform: capitalize;">${req.type}</td>
+                    <td class="status-${req.status}">${req.status}</td>
+                    <td>${date}</td>
+                    <td>${actionButtons}</td>
+                </tr>
+                `;
+            });
+        }
+
+        const res = await RequestService.getAllRequests();
+        allRequests = res.data || [];
+
+        function handleRequestSearch(e) {
+            if(e) e.preventDefault();
+            const q = document.getElementById("searchRequestsInput").value.toLowerCase();
+            if(!q) {
+                renderRequests(allRequests);
+                return;
+            }
+            const filtered = allRequests.filter(r => {
+                const userName = (r.user ? r.user.fullName : "Unknown").toLowerCase();
+                const bookTitle = (r.book ? r.book.title : "Unknown").toLowerCase();
+                return userName.includes(q) || 
+                       bookTitle.includes(q) || 
+                       r.type.toLowerCase().includes(q) || 
+                       r.status.toLowerCase().includes(q);
+            });
+            renderRequests(filtered);
+        }
+
+        document.getElementById("searchRequestsForm").addEventListener("submit", handleRequestSearch);
+        document.getElementById("searchRequestsInput").addEventListener("input", handleRequestSearch);
+        document.getElementById("resetRequestsBtn").addEventListener("click", () => {
+            document.getElementById("searchRequestsInput").value = "";
+            renderRequests(allRequests);
+        });
+
+        // Check for URL query
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryParam = urlParams.get("q");
+        if(queryParam) {
+            document.getElementById("searchRequestsInput").value = queryParam;
+            handleRequestSearch();
+        } else {
+            renderRequests(allRequests);
+        }
+
+
+    } catch(err){
+
+        console.error(err)
+
+    }
+
+})
+
+
+
+window.handleRequest = async (reqId,status)=>{
+
+    try{
+
+        await RequestService.handleRequest({reqId,status})
+
+        alert("Request " + status)
+
+        location.reload()
+
+    }
+
+    catch(err){
+
+        alert("Failed : " + err.message)
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

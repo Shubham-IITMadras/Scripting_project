@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISSUE REQUESTS | LMS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg" alt="logo">
+<img src="image copy 15.png" alt="logo1">
+</header>
+
+<nav class="navbar">
+
+<div class="user_details">
+<span><strong>Librarian:</strong> Krishna</span>
+</div>
+
+<div class="logout">
+<a href="login.html">Logout</a>
+</div>
+
+</nav>
+
+
+<main class="stu_fac_dashboard">
+
+<section class="welcome">
+<h2>Issue Requests 📖</h2>
+<p>Approve or reject book issue requests</p>
+</section>
+
+
+<section class="table_of_books">
+
+<h2>Pending Issue Requests</h2>
+
+<table class="booktable">
+
+<thead>
+<tr>
+<th>User</th>
+<th>Book</th>
+<th>Request Type</th>
+<th>Status</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="issueRequests">
+
+<tr>
+<td colspan="6">Loading...</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</section>
+
+</main>
+
+
+<footer class="library-footer">
+
+<div class="footer-container">
+
+<div class="footer-section">
+<h3>Library Management System</h3>
+<p>Your digital gateway to knowledge.</p>
+</div>
+
+<div class="footer-section">
+<h4>Quick Links</h4>
+<ul>
+<li><a href="librarian_dashboard.html">Dashboard</a></li>
+<li><a href="manage_requests.html">Manage Requests</a></li>
+<li><a href="borrow_records.html">Borrow Records</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Contact</h4>
+<p>Email: library@lms.com</p>
+<p>Phone: +91 98765 43210</p>
+</div>
+
+</div>
+
+<div class="footer-bottom">
+<p>© 2026 LMS</p>
+</div>
+
+</footer>
+
+
+
+<script src="script.js"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    try {
+
+        const table = document.getElementById("issueRequests")
+
+        const res = await RequestService.getAllRequests()
+
+        const requests = res.data || []
+
+        // FILTER ISSUE REQUESTS ONLY
+        const issueRequests = requests.filter(r => r.type === "issue")
+
+        table.innerHTML = ""
+
+        if(issueRequests.length === 0){
+
+            table.innerHTML = `
+            <tr>
+            <td colspan="6">No Issue Requests Found</td>
+            </tr>
+            `
+            return
+        }
+
+
+        issueRequests.forEach(req => {
+
+            const user = req.user ? req.user.fullName : "Unknown"
+
+            const book = req.book ? req.book.title : "Unknown"
+
+            const date = new Date(req.createdAt).toLocaleDateString("en-IN")
+
+            let actions = ""
+
+            if(req.status === "pending"){
+
+                actions = `
+                <button class="approve"
+                onclick="handleIssue('${req._id}','approved')">
+                Approve
+                </button>
+
+                <button class="reject"
+                onclick="handleIssue('${req._id}','rejected')">
+                Reject
+                </button>
+                `
+            }
+
+            table.innerHTML += `
+            <tr>
+
+            <td>${user}</td>
+
+            <td>${book}</td>
+
+            <td>${req.type}</td>
+
+            <td class="status-${req.status}">
+            ${req.status}
+            </td>
+
+            <td>${date}</td>
+
+            <td>${actions}</td>
+
+            </tr>
+            `
+        })
+
+    }
+
+    catch(err){
+
+        console.error("Issue Requests Error:", err)
+
+    }
+
+})
+
+
+
+window.handleIssue = async (reqId,status)=>{
+
+    try{
+
+        await RequestService.handleRequest({reqId,status})
+
+        alert("Issue request " + status)
+
+        location.reload()
+
+    }
+
+    catch(err){
+
+        alert("Action failed : " + err.message)
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

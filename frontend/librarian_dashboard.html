@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIBRARIAN DASHBOARD | LMS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg" alt="logo">
+<img src="image copy 15.png" alt="logo1">
+</header>
+
+<nav class="navbar">
+<div class="user_details">
+<span><strong>Librarian Name:</strong> Krishna</span>
+<span><strong>Librarian ID:</strong> 123456</span>
+</div>
+
+<div class="logout">
+<a href="login.html">Logout</a>
+</div>
+</nav>
+
+<main class="stu_fac_dashboard">
+
+<section class="welcome">
+<h2>Welcome, Krishna 🙌</h2>
+<p>Manage library resources and verify transactions</p>
+</section>
+
+<!-- SEARCH BAR -->
+<section class="dashboard-search">
+<div class="dashboard-search-bar">
+<select class="branch-select" id="searchCategory" style="border-right: 2px solid #e0d0d0;">
+<option value="books">Books</option>
+<option value="users">Users</option>
+<option value="requests">Requests</option>
+</select>
+<input type="text" id="librarianSearchInput" class="dashboard-search-input" placeholder="Enter search term...">
+<button class="dashboard-search-btn" onclick="executeLibrarianSearch()">🔍 Search</button>
+</div>
+</section>
+
+<!-- DASHBOARD STATS -->
+<section class="works">
+
+<div class="work">
+<h2>Total Books</h2>
+<p id="totalBooks">7896</p>
+</div>
+
+<div class="work">
+<h2>Books Issued</h2>
+<p id="booksIssued">789</p>
+</div>
+
+<div class="work">
+<h2>Pending Requests</h2>
+<p id="pendingRequests">10</p>
+</div>
+
+<div class="work">
+<h2>Overdue Books</h2>
+<p id="overdueBooks">5</p>
+</div>
+
+</section>
+
+
+<!-- BOOK MANAGEMENT -->
+<section class="actions">
+
+<a href="add_book.html" class="action">
+<h2>Add Book 📚</h2>
+<p>Add new books to library collection</p>
+</a>
+
+<a href="update_books.html" class="action">
+<h2>Update Books 📝</h2>
+<p>Edit existing book records</p>
+</a>
+
+<a href="remove_book.html" class="action">
+<h2>Remove Books 🗑</h2>
+<p>Delete damaged or outdated books</p>
+</a>
+
+</section>
+
+
+<!-- REQUEST MANAGEMENT -->
+<section class="actions">
+
+<a href="issue_requests.html" class="action">
+<h2>Issue Requests 📖</h2>
+<p>View all book issue requests</p>
+</a>
+
+<a href="return_requests.html" class="action">
+<h2>Return Requests 🔄</h2>
+<p>Verify book return requests</p>
+</a>
+
+</section>
+
+
+<!-- TRANSACTIONS -->
+<section class="actions">
+
+
+<a href="borrow_records.html" class="action">
+<h2>Borrow Records 📑</h2>
+<p>View all issued books</p>
+</a>
+
+<a href="all_overdueBooks.html" class="action">
+<h2>Overdue Books ⚠</h2>
+<p>Track books not returned on time</p>
+</a>
+
+</section>
+
+
+<!-- RECENT REQUESTS -->
+<section class="table_of_books">
+
+<h2>Recent Requests</h2>
+
+<table class="booktable">
+
+<thead>
+<tr>
+<th>User</th>
+<th>Book</th>
+<th>Request Type</th>
+<th>Status</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="recentRequests">
+
+
+</tbody>
+
+</table>
+
+</section>
+
+
+<!-- ALERTS -->
+<section class="alerts">
+
+<h3>📢 Notifications</h3>
+
+<ul>
+<li>⚠ 5 pending borrow/return requests</li>
+<li>📚 3 books overdue today</li>
+<li>✔ All book records updated today</li>
+</ul>
+
+</section>
+
+</main>
+
+
+<footer class="library-footer">
+
+<div class="footer-container">
+
+<div class="footer-section">
+<h3>Library Management System</h3>
+<p>Your digital gateway to knowledge, books, and learning.</p>
+</div>
+
+<div class="footer-section">
+<h4>Quick Links</h4>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="about_us.html">About Us</a></li>
+<li><a href="contact-us.html">Contact Us</a></li>
+<li><a href="help.html">Help</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Support</h4>
+<ul>
+<li><a href="#">Help</a></li>
+<li><a href="#">Rules</a></li>
+<li><a href="#">Contact</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Contact</h4>
+<p>Email: library@lms.com</p>
+<p>Phone: +91 98765 43210</p>
+</div>
+
+</div>
+
+<div class="footer-bottom">
+<p>© 2026 Library Management System | All Rights Reserved</p>
+</div>
+
+</footer>
+
+<script src="script.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const user = JSON.parse(localStorage.getItem("currentUser"));
+        if (user) {
+            // Update username displays
+            document.querySelector(".user_details").innerHTML = `
+                <span><strong>Librarian Name:</strong> ${user.fullName || user.username}</span>
+                <span><strong>Librarian ID:</strong> ${user._id.slice(-6).toUpperCase()}</span>
+            `;
+            document.querySelector(".welcome h2").textContent = `Welcome, ${user.fullName || user.username} 🙌`;
+        }
+
+        // Fetch Total Books
+        const allBooksRes = await BookService.getAllBooks();
+        document.getElementById("totalBooks").textContent = allBooksRes.data ? allBooksRes.data.length : 0;
+
+        // Fetch Issued Books
+        const issuedRes = await BorrowService.getAllIssuedRecords();
+        document.getElementById("booksIssued").textContent = issuedRes.data ? issuedRes.data.length : 0;
+
+        // Fetch All Requests for Pending count and Recent Table
+        const allReqsRes = await RequestService.getAllRequests();
+        const allReqs = allReqsRes.data || [];
+        const pendingReqs = allReqs.filter(r => r.status === "pending");
+        document.getElementById("pendingRequests").textContent = pendingReqs.length;
+
+        // Fetch Overdue Books
+        const overdueRes = await BorrowService.getAllOverdue();
+        document.getElementById("overdueBooks").textContent = overdueRes.data ? overdueRes.data.length : 0;
+
+        // Populate Recent Requests Table
+        const recentRequestsBody = document.getElementById("recentRequests");
+        recentRequestsBody.innerHTML = "";
+        
+        // Take up to 5 most recent requests
+        const recent = allReqs.slice(0, 5);
+        if(recent.length === 0) {
+            recentRequestsBody.innerHTML = `<tr><td colspan="6">No recent requests</td></tr>`;
+        } else {
+            recent.forEach(req => {
+                const userName = req.user ? req.user.fullName : "Unknown";
+                const bookTitle = req.book ? req.book.title : "Unknown";
+                const date = new Date(req.createdAt).toLocaleDateString("en-IN");
+                
+                let actions = "";
+                if(req.status === "pending") {
+                    actions = `
+                        <button class="approve" onclick="handleReq('${req._id}', 'approved')">Approve</button>
+                        <button class="reject" onclick="handleReq('${req._id}', 'rejected')">Reject</button>
+                    `;
+                }
+
+                recentRequestsBody.innerHTML += `
+                    <tr>
+                        <td>${userName}</td>
+                        <td>${bookTitle}</td>
+                        <td style="text-transform: capitalize;">${req.type}</td>
+                        <td class="status-${req.status}">${req.status}</td>
+                        <td>${date}</td>
+                        <td>${actions}</td>
+                    </tr>
+                `;
+            });
+        }
+    } catch (err) {
+        console.error("Librarian Dashboard Error:", err);
+    }
+});
+
+window.handleReq = async (reqId, status) => {
+    try {
+        await RequestService.handleRequest({ reqId, status });
+        alert(`Request ${status} successfully!`);
+        location.reload();
+    } catch(err) {
+        alert("Action failed: " + err.message);
+    }
+};
+
+function executeLibrarianSearch() {
+    const query = document.getElementById('librarianSearchInput').value.trim();
+    const category = document.getElementById('searchCategory').value;
+    
+    if (category === 'books') {
+        window.location.href = 'book_search.html?q=' + encodeURIComponent(query);
+    } else if (category === 'users') {
+        window.location.href = 'manage_users.html?q=' + encodeURIComponent(query);
+    } else if (category === 'requests') {
+        window.location.href = 'manage_requests.html?q=' + encodeURIComponent(query);
+    }
+}
+
+document.getElementById('librarianSearchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        executeLibrarianSearch();
+    }
+});
+</script>
+</body>
+</html>

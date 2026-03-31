@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | CampusLibrary</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+
+    <div class="login-container">
+
+        <div class="logo">
+            <h1>Campus<span>Library</span></h1>
+            <p>LIBRARY MANAGEMENT SYSTEM</p>
+        </div>
+
+        <form class="login-form" id="register-form">
+
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Choose a username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Create a password" required>
+            </div>
+
+            <button type="submit" class="login-btn">Register</button>
+
+        </form>
+
+        <div class="signup-link">
+            Already have an account? <a href="login.html">Login</a>
+        </div>
+
+    </div>
+
+    
+
+    <script src="script.js"></script>
+    <script>
+        const form = document.getElementById("register-form");
+
+        form.addEventListener("submit", async function(e){
+            e.preventDefault();
+
+            const fullName = document.getElementById("fullName").value;
+            const email = document.getElementById("email").value;
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            try {
+                const data = await UserService.register({
+                    fullName,
+                    email,
+                    username,
+                    password
+                });
+
+                console.log("Registration successful:", data);
+                alert("Registration successful! Please login.");
+                window.location.href = "login.html";
+            } catch (error) {
+                console.error("Registration Error:", error);
+                alert("Registration failed: " + error.message);
+            }
+        });
+    </script>
+</body>
+
+
+</html>

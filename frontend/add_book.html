@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADD BOOK | LMS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg" alt="logo" loading="lazy">
+<img src="image copy 15.png" alt="logo1">
+</header>
+
+<nav class="navbar">
+<div class="user_details">
+<span><strong>Librarian Name:</strong> krishna</span>
+<span><strong>Librarian ID:</strong> 123456</span>
+</div>
+
+<div class="logout">
+<a href="login.html">Logout</a>
+</div>
+</nav>
+
+<main class="stu_fac_dashboard">
+
+<div class="add-book-container">
+<h2>Add New Book</h2>
+
+<form class="add-book-form" id="addBookForm">
+
+<div class="form-group">
+<label>Book Title</label>
+<input type="text" placeholder="Enter book title" id="bookTitle" required>
+</div>
+
+<div class="form-group">
+<label>Author</label>
+<input type="text" placeholder="Enter author name" id="bookAuthor" required>
+</div>
+
+<div class="form-group">
+<label>Edition</label>
+<input type="number" placeholder="e.g. 3" id="bookEdition" min="1">
+</div>
+
+<div class="form-group">
+<label>Branch</label>
+<select id="bookBranch" required>
+<option value="">Select Branch</option>
+<option value="CSE">CSE</option>
+<option value="ECE">ECE</option>
+<option value="EE">EE</option>
+<option value="ME">ME</option>
+<option value="CE">CE</option>
+<option value="IT">IT</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>ISBN Number</label>
+<input type="text" placeholder="Enter ISBN" id="bookISBN" required>
+</div>
+
+<div class="form-group">
+<label>Year of Publication</label>
+<input type="number" placeholder="Enter Year" id="bookYear" required>
+</div>
+
+<div class="form-group">
+<label>Total Copies</label>
+<input type="number" placeholder="Number of copies" id="bookQuantity" required>
+</div>
+
+<button type="submit" class="add-btn">Add Book</button>
+
+</form>
+</div>
+
+<section class="alerts">
+<h3>📢 Notifications</h3>
+<ul>
+<li>✔ All services running normally</li>
+<li>⚠ 3 user accounts pending verification</li>
+</ul>
+</section>
+
+</main>
+
+<footer class="library-footer">
+<div class="footer-container">
+<div class="footer-section">
+<h3>Library Management System</h3>
+<p>Your digital gateway to knowledge, books, and learning.</p>
+</div>
+
+<div class="footer-section">
+<h4>Quick Links</h4>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="about_us.html">About Us</a></li>
+<li><a href="contact-us.html">Contact Us</a></li>
+<li><a href="help.html">Help</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Support</h4>
+<ul>
+<li><a href="#">Help</a></li>
+<li><a href="#">Rules</a></li>
+<li><a href="#">Contact</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Contact</h4>
+<p>Email: library@lms.com</p>
+<p>Phone: +91 98765 43210</p>
+</div>
+</div>
+
+<div class="footer-bottom">
+<p>© 2026 Library Management System | All Rights Reserved</p>
+</div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+const form = document.getElementById("addBookForm")
+
+form.addEventListener("submit", async function(e){
+    e.preventDefault()
+
+    const newBook = {
+        title: document.getElementById("bookTitle").value,
+        author: document.getElementById("bookAuthor").value,
+        edition: document.getElementById("bookEdition").value ? parseInt(document.getElementById("bookEdition").value) : undefined,
+        branch: document.getElementById("bookBranch").value,
+        isbn_no: document.getElementById("bookISBN").value,
+        publish_year: parseInt(document.getElementById("bookYear").value),
+        totalCopies: parseInt(document.getElementById("bookQuantity").value)
+    }
+
+    try{
+        const response = await BookService.addBook(newBook);
+        alert("Book Added successfully");
+        form.reset();
+    } catch(error){
+        console.error(error);
+        alert("Failed to add book: " + error.message);
+    }
+})
+</script>
+
+</body>
+</html>

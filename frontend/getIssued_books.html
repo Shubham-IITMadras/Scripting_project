@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Issued Books | LMS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg">
+<img src="image copy 15.png">
+</header>
+
+<main class="stu_fac_dashboard">
+
+<section class="welcome">
+<h2>Issued Books 📚</h2>
+<p>Books currently issued by users</p>
+</section>
+
+<section class="table_of_books">
+
+<table class="booktable">
+
+<thead>
+<tr>
+<th>Cover</th>
+<th>Book ID</th>
+<th>Title</th>
+<th>Author</th>
+<th>Edition</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="booksTableBody">
+</tbody>
+
+</table>
+
+</section>
+
+</main>
+
+<script src="script.js"></script>
+
+<script src="api.js"></script>
+
+<script>
+
+async function loadIssuedBooks(){
+
+try {
+
+const response = await BorrowService.getMyIssued()
+const records = response.data
+
+const tableBody = document.getElementById("booksTableBody")
+tableBody.innerHTML = ""
+
+records.forEach(record => {
+
+const row = document.createElement("tr")
+
+row.innerHTML = `
+<td>
+<img src="${record.book?.bookImage || 'image copy 16.png'}" class="book-img">
+</td>
+
+<td>${record.book?._id}</td>
+<td>${record.book?.title}</td>
+<td>${record.book?.author}</td>
+<td>${record.book?.edition}</td>
+
+<td>
+<button class="return-btn" data-book="${record.book?._id}">
+Request Return
+</button>
+</td>
+`
+
+tableBody.appendChild(row)
+
+})
+
+attachReturnEvents()
+
+} catch(error) {
+console.error(error)
+alert("Failed to load issued books")
+}
+
+}
+
+function attachReturnEvents(){
+
+const buttons = document.querySelectorAll(".return-btn")
+
+buttons.forEach(btn => {
+btn.addEventListener("click", async function(){
+
+const bookId = this.getAttribute("data-book")
+
+const confirmReturn = confirm("Send return request?")
+if(!confirmReturn) return
+
+try {
+
+const response = await RequestService.createRequest({
+bookId: bookId,
+type: "return"
+})
+
+alert(response.message || "Return request sent")
+
+this.disabled = true
+this.textContent = "Requested"
+
+} catch(error) {
+
+console.error(error)
+
+if(error.message.includes("exists")){
+this.disabled = true
+this.textContent = "Already Requested"
+}
+
+alert(error.message)
+
+}
+
+})
+})
+
+}
+
+loadIssuedBooks()
+
+</script>
+
+</body>
+</html>

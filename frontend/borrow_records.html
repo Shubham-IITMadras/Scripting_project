@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BORROW RECORDS | LMS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg" alt="logo">
+<img src="image copy 15.png" alt="logo1">
+</header>
+
+<nav class="navbar">
+
+<div class="user_details">
+<span><strong>Librarian Name:</strong> Krishna</span>
+<span><strong>Librarian ID:</strong> 123456</span>
+</div>
+
+<div class="logout">
+<a href="login.html">Logout</a>
+</div>
+
+</nav>
+
+
+<main class="stu_fac_dashboard">
+
+<section class="welcome">
+<h2>Borrow Records 📑</h2>
+<p>View all borrowing history</p>
+</section>
+
+
+<section class="table_of_books">
+
+<h2>All Borrow Records</h2>
+
+<table class="booktable">
+
+<thead>
+<tr>
+<th>User</th>
+<th>Book</th>
+<th>Issue Date</th>
+<th>Due Date</th>
+<th>Return Date</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="borrowRecords">
+
+<tr>
+<td colspan="6">Loading...</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</section>
+
+</main>
+
+
+<footer class="library-footer">
+
+<div class="footer-container">
+
+<div class="footer-section">
+<h3>Library Management System</h3>
+<p>Your digital gateway to knowledge.</p>
+</div>
+
+<div class="footer-section">
+<h4>Quick Links</h4>
+<ul>
+<li><a href="librarian_dashboard.html">Dashboard</a></li>
+<li><a href="manage_requests.html">Manage Requests</a></li>
+<li><a href="overdue_books.html">Overdue Books</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Contact</h4>
+<p>Email: library@lms.com</p>
+<p>Phone: +91 98765 43210</p>
+</div>
+
+</div>
+
+<div class="footer-bottom">
+<p>© 2026 LMS</p>
+</div>
+
+</footer>
+
+
+<script src="script.js"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    try {
+        const user = JSON.parse(localStorage.getItem("currentUser"));
+        if (user) {
+            // Update username displays
+            document.querySelector(".user_details").innerHTML = `
+                <span><strong>Librarian Name:</strong> ${user.fullName || user.username}</span>
+                <span><strong>Librarian ID:</strong> ${user._id.slice(-6).toUpperCase()}</span>
+            `;
+            document.querySelector(".welcome h2").textContent = `Welcome, ${user.fullName || user.username} 🙌`;
+        }
+
+        const table = document.getElementById("borrowRecords")
+
+        const res = await BorrowService.getAllBorrowRecords()
+
+        const records = res.data || []
+
+        table.innerHTML = ""
+
+        if(records.length === 0){
+
+            table.innerHTML = `
+            <tr>
+            <td colspan="6">No Borrow Records Found</td>
+            </tr>
+            `
+            return
+        }
+
+
+        records.forEach(record => {
+
+            const user = record.user ? record.user.fullName : "Unknown"
+
+            const book = record.book ? record.book.title : "Unknown"
+
+            const issueDate = new Date(record.issueDate).toLocaleDateString("en-IN")
+
+            const dueDate = new Date(record.dueDate).toLocaleDateString("en-IN")
+
+            const returnDate = record.returnDate
+                ? new Date(record.returnDate).toLocaleDateString("en-IN")
+                : "—"
+
+            const status = record.status
+
+            table.innerHTML += `
+            <tr>
+
+            <td>${user}</td>
+
+            <td>${book}</td>
+
+            <td>${issueDate}</td>
+
+            <td>${dueDate}</td>
+
+            <td>${returnDate}</td>
+
+            <td class="status-${status.toLowerCase()}">
+            ${status}
+            </td>
+
+            </tr>
+            `
+        })
+
+    }
+
+    catch(err){
+
+        console.error("Borrow Records Error:", err)
+
+    }
+
+})
+
+</script>
+
+</body>
+</html>

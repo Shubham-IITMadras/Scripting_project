@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | DASHBOARD - LMS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <img src="nit-kkr-logo.jpeg" alt="logo" loading="lazy">
+    <img src="image copy 15.png" alt="logo1">
+</header>
+
+<nav class="navbar">
+    <div class="user_details">
+        <span><strong>Admin Name:</strong> Loading...</span>
+        <span><strong>Admin ID:</strong> Loading...</span>
+    </div>
+
+    <div class="logout">
+        <a href="login.html">Logout</a>
+    </div>
+</nav>
+
+<main class="stu_fac_dashboard">
+
+    <section class="welcome">
+        <h2>Welcome 🙌</h2>
+        <p>Monitor and manage the CampusLibrary system</p>
+    </section>
+
+    <!-- DASHBOARD STATS -->
+    <section class="works">
+        <div class="work">
+            <h2>Total Users</h2>
+            <p id="totalUsers">Loading...</p>
+        </div>
+
+        <div class="work">
+            <h2>Students</h2>
+            <p id="studentsCount">Loading...</p>
+        </div>
+
+        <div class="work">
+            <h2>Librarians</h2>
+            <p id="librariansCount">Loading...</p>
+        </div>
+
+        <div class="work">
+            <h2>Books in System</h2>
+            <p id="booksCount">Loading...</p>
+        </div>
+    </section>
+
+    <!-- ACTIONS -->
+    <section class="actions">
+
+        <a href="manage_users.html" class="action">
+            <h2>Manage Users 👤</h2>
+            <p>Block, unblock users</p>
+        </a>
+
+        <a href="borrow_records.html" class="action">
+            <h2>Borrrow Records </h2>
+            <p>View Books issued and returned records</p>
+        </a>
+
+    </section>
+
+    <!-- NOTIFICATIONS -->
+    <section class="alerts">
+        <h3>📢 Notifications</h3>
+        <ul id="notificationsList">
+            <li>Loading...</li>
+        </ul>
+    </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="library-footer">
+    <div class="footer-container">
+
+        <div class="footer-section">
+            <h3>Library Management System</h3>
+            <p>Your digital gateway to knowledge, books, and learning.</p>
+        </div>
+
+        <div class="footer-section">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about_us.html">About Us</a></li>
+                <li><a href="contact-us.html">Contact Us</a></li>
+                <li><a href="help.html">Help</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-section">
+            <h4>Support</h4>
+            <ul>
+                <li><a href="#">Help</a></li>
+                <li><a href="#">Rules</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-section">
+            <h4>Contact</h4>
+            <p>Email: library@lms.com</p>
+            <p>Phone: +91 98765 43210</p>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>© 2026 Library Management System | All Rights Reserved</p>
+    </div>
+</footer>
+
+<!-- IMPORTANT: LOAD API FIRST -->
+<script src="script.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+
+    // -------------------------
+    // LOAD USER INFO
+    // -------------------------
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+
+    if (user) {
+        document.querySelector(".user_details").innerHTML = `
+            <span><strong>Admin Name:</strong> ${user.fullName || user.username}</span>
+            <span><strong>Admin ID:</strong> ${user._id.slice(-6).toUpperCase()}</span>
+        `;
+
+        document.querySelector(".welcome h2").textContent =
+            `Welcome, ${user.fullName || user.username} 🙌`;
+    }
+
+    // -------------------------
+    // LOAD DASHBOARD DATA
+    // -------------------------
+    try {
+        // const [usersRes, booksRes] = await Promise.all([
+        //     apiFetch("/users/all"),          // must exist in backend
+        //     BookService.getAllBooks()
+        // ]);
+
+        const usersRes = await  UserService.loadAllUsers()
+        const booksRes = await BookService.getAllBooks()
+
+        const users = usersRes.data || usersRes;
+        const books = booksRes.data || booksRes;
+
+        document.getElementById("totalUsers").textContent = users.length;
+        document.getElementById("studentsCount").textContent =
+            users.filter(u => u.role === "student").length;
+
+        document.getElementById("librariansCount").textContent =
+            users.filter(u => u.role === "librarian").length;
+
+        document.getElementById("booksCount").textContent = books.length;
+
+    } catch (err) {
+        console.error("Dashboard error:", err);
+    }
+
+    // -------------------------
+    // LOAD NOTIFICATIONS
+    // -------------------------
+    try {
+        const res = await NotificationService.loadNotifications();
+        const notifications = res.data || res;
+
+        const list = document.getElementById("notificationsList");
+        list.innerHTML = "";
+
+        if (notifications.length === 0) {
+            list.innerHTML = "<li>No notifications</li>";
+        } else {
+            notifications.forEach(n => {
+                const li = document.createElement("li");
+                li.textContent = n.message;
+                list.appendChild(li);
+            });
+        }
+
+    } catch (err) {
+        console.error("Notification error:", err);
+    }
+
+});
+</script>
+
+</body>
+</html>

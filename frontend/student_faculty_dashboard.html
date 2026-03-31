@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Dashboard | LMS</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+.works{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+margin:30px 0;
+}
+
+.work{
+background:white;
+padding:20px;
+border-radius:10px;
+text-align:center;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.work p{
+font-size:28px;
+font-weight:bold;
+margin-top:10px;
+color:#2c7be5;
+}
+
+.actions{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-top:20px;
+}
+
+.action{
+background:white;
+padding:20px;
+border-radius:10px;
+text-decoration:none;
+color:black;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+transition:0.2s;
+}
+
+.action:hover{
+transform:translateY(-4px);
+box-shadow:0 6px 15px rgba(0,0,0,0.15);
+}
+
+.alerts{
+margin-top:40px;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg" alt="logo" loading="lazy">
+<img src="image copy 15.png" alt="logo1">
+</header>
+
+<nav class="navbar">
+
+<div class="user_details">
+<span><strong>User Name:</strong> <span id="userName">Krishna</span></span>
+<span><strong>User Id:</strong> <span id="userId">123456</span></span>
+</div>
+
+
+<div class="logout">
+<a href="login.html">Logout</a>
+</div>
+
+</nav>
+
+<main class="stu_fac_dashboard">
+
+<section class="welcome">
+<h2>Welcome, <span id="welcomeName">Krishna</span> 🙌</h2>
+<p>Manage your library activities from one place</p>
+</section>
+
+<!-- SEARCH BAR -->
+<section class="dashboard-search">
+<div class="dashboard-search-bar">
+<div class="autocomplete-wrapper">
+<input type="text" id="studentSearchInput" class="dashboard-search-input" placeholder="Search books by title, author, or ISBN..." autocomplete="off">
+<div class="autocomplete-list" id="studentAutoList"></div>
+</div>
+<button class="dashboard-search-btn" onclick="goSearch()">🔍 Search</button>
+</div>
+</section>
+
+<section class="works">
+
+<div class="work">
+<h2>Issued Books</h2>
+<p id="issuedCount">3</p>
+</div>
+
+<div class="work">
+<h2>Due Soon</h2>
+<p id="dueSoonCount">2</p>
+</div>
+
+<div class="work">
+<h2>Fine (₹)</h2>
+<p id="fineAmount">0</p>
+</div>
+
+<div class="work">
+<h2>Pending Requests</h2>
+<p id="requestCount">1</p>
+</div>
+
+</section>
+
+<section class="actions">
+
+<a href="getIssued_books.html" class="action">
+<h2>My Books 📚</h2>
+<p>View books currently issued to you</p>
+</a>
+
+<a href="book_search.html" class="action">
+<h2>Browse Books 🔍</h2>
+<p>Search and request new books</p>
+</a>
+
+<a href="my_requests.html" class="action">
+<h2>My Requests 📩</h2>
+<p>Track issue / return requests</p>
+</a>
+
+
+</section>
+
+<section class="actions">
+<a href="getDueSoonBooks.html" class="action">
+<h2>Due Soon ⏳</h2>
+<p>Books that will be due soon</p>
+</a>
+
+<a href="overdueBooks.html" class="action">
+<h2>Overdue Books ⚠</h2>
+<p>View books with pending fine</p>
+</a>
+
+<a href="my_notifications.html" class="action">
+<h2> Notifications 🔔</h2>
+<p> Notifications </p>
+</a>
+
+
+</section>
+
+<section class="alerts">
+
+<h3>📢 Notifications</h3>
+
+<ul id="notificationList">
+<li>✔ No pending fines</li>
+<li>⚠ 1 book due in 3 days</li>
+<li>📚 Your request for "Clean Code" is pending</li>
+</ul>
+
+</section>
+
+</main>
+
+<footer class="library-footer">
+
+<div class="footer-container">
+
+<div class="footer-section">
+<h3>Library Management System</h3>
+<p>Your digital gateway to knowledge, books, and learning.</p>
+</div>
+
+<div class="footer-section">
+<h4>Quick Links</h4>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="about_us.html">About Us</a></li>
+<li><a href="contact-us.html">Contact Us</a></li>
+<li><a href="help.html">Help</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Support</h4>
+<ul>
+<li><a href="#">Help</a></li>
+<li><a href="#">Rules</a></li>
+<li><a href="#">Contact</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Contact</h4>
+<p>Email: library@lms.com</p>
+<p>Phone: +91 98765 43210</p>
+</div>
+
+</div>
+
+<div class="footer-bottom">
+<p>© 2026 Library Management System | All Rights Reserved</p>
+</div>
+
+</footer>
+
+<script src="script.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const user = JSON.parse(localStorage.getItem("currentUser"));
+        if (user) {
+            document.getElementById("userName").textContent = user.fullName || user.username;
+            document.getElementById("userId").textContent = user._id.slice(-6).toUpperCase();
+            document.getElementById("welcomeName").textContent = user.fullName || user.username;
+        }
+
+        // Fetch User's Books
+        // Issued Books
+        const myRecordsRes = await BorrowService.getMyRecords();
+        const myRecords = myRecordsRes.data || [];
+        const issuedRecords = myRecords.filter(r => r.status === "issued");
+        document.getElementById("issuedCount").textContent = issuedRecords.length;
+
+        // Due Soon (Using the global due soon endpoint isn't fully user-specific, but let's filter)
+        // Actually, we can just check our own issued records
+        const today = new Date();
+        const threeDaysLater = new Date();
+        threeDaysLater.setDate(today.getDate() + 3);
+
+        const dueSoonRecords = issuedRecords.filter(r => {
+            const due = new Date(r.dueDate);
+            return due >= today && due <= threeDaysLater;
+        });
+        document.getElementById("dueSoonCount").textContent = dueSoonRecords.length;
+
+        // Fine
+        let totalFine = 0;
+        const overdueRecords = issuedRecords.filter(r => new Date(r.dueDate) < today);
+        overdueRecords.forEach(r => {
+            const due = new Date(r.dueDate);
+            const late = Math.floor((today - due) / (1000 * 60 * 60 * 24));
+            totalFine += late * 10; // Backend fine logic might differ slightly
+        });
+        document.getElementById("fineAmount").textContent = totalFine;
+
+        // Pending Requests
+        const myRequestsRes = await RequestService.getMyRequests();
+        const myRequests = myRequestsRes.data || [];
+        const pendingReqs = myRequests.filter(req => req.status === "pending");
+        document.getElementById("requestCount").textContent = pendingReqs.length;
+
+        // Notifications Update
+        const notifList = document.getElementById("notificationList");
+        notifList.innerHTML = "";
+        if (totalFine === 0) notifList.innerHTML += "<li>✔ No pending fines</li>";
+        else notifList.innerHTML += `<li>⚠ You have ₹${totalFine} pending fine</li>`;
+
+        if (dueSoonRecords.length > 0) {
+            notifList.innerHTML += `<li>⚠ ${dueSoonRecords.length} book(s) due soon</li>`;
+        }
+
+        if (pendingReqs.length > 0) {
+            notifList.innerHTML += `<li>📚 You have ${pendingReqs.length} pending request(s)</li>`;
+        }
+
+    } catch (err) {
+        console.error("Dashboard Error:", err);
+    }
+});
+
+// ===== AUTOCOMPLETE =====
+let acBooks = [];
+(async function loadBooksForAC() {
+    try {
+        const res = await BookService.getAllBooks();
+        acBooks = res.data || [];
+    } catch(e) { console.error(e); }
+})();
+
+const acInput = document.getElementById("studentSearchInput");
+const acList = document.getElementById("studentAutoList");
+let acIndex = -1;
+
+acInput.addEventListener("input", function() {
+    const val = this.value.trim().toLowerCase();
+    acList.innerHTML = "";
+    acIndex = -1;
+    if (val.length < 1) { acList.classList.remove("active"); return; }
+
+    const matches = acBooks.filter(b =>
+        (b.title || "").toLowerCase().includes(val) ||
+        (b.author || "").toLowerCase().includes(val) ||
+        (b.isbn_no || "").toLowerCase().includes(val)
+    ).slice(0, 8);
+
+    if (matches.length === 0) { acList.classList.remove("active"); return; }
+
+    matches.forEach(b => {
+        const div = document.createElement("div");
+        div.className = "autocomplete-item";
+        div.innerHTML = `<span class="item-title">${b.title}</span><span class="item-author">by ${b.author}</span>`;
+        div.addEventListener("click", () => {
+            acInput.value = b.title;
+            acList.classList.remove("active");
+            goSearch();
+        });
+        acList.appendChild(div);
+    });
+    acList.classList.add("active");
+});
+
+acInput.addEventListener("keydown", function(e) {
+    const items = acList.querySelectorAll(".autocomplete-item");
+    if (e.key === "ArrowDown") { e.preventDefault(); acIndex = Math.min(acIndex + 1, items.length - 1); updateAC(items); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); acIndex = Math.max(acIndex - 1, 0); updateAC(items); }
+    else if (e.key === "Enter" && acIndex >= 0) { e.preventDefault(); items[acIndex].click(); }
+});
+
+function updateAC(items) {
+    items.forEach((el, i) => el.classList.toggle("selected", i === acIndex));
+}
+
+document.addEventListener("click", function(e) {
+    if (!acInput.contains(e.target) && !acList.contains(e.target)) acList.classList.remove("active");
+});
+
+function goSearch() {
+    const q = document.getElementById("studentSearchInput").value.trim();
+    if (q) window.location.href = "book_search.html?q=" + encodeURIComponent(q);
+}
+</script>
+</body>
+</html>

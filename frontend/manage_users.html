@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Users | LMS</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+.add-user-btn{
+    margin:20px;
+    padding:10px 18px;
+    background:#e8621a;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+.add-user-btn:hover{
+    background:#c0850f;
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg" alt="logo">
+<img src="image copy 15.png" alt="logo1">
+</header>
+
+<nav class="navbar">
+
+<div class="user_details">
+<span><strong>Admin Name:</strong> Loading...</span>
+<span><strong>Admin ID:</strong> Loading...</span>
+</div>
+
+<div class="logout">
+<a href="login.html">Logout</a>
+</div>
+
+</nav>
+
+<main class="stu_fac_dashboard">
+
+<section class="welcome">
+<h2>Manage Users 👥</h2>
+<p>View, remove, or add users</p>
+</section>
+
+<button class="add-user-btn" onclick="window.location.href='add_user.html'">Add User</button>
+
+<section class="dashboard-search">
+<form class="dashboard-search-bar" id="searchUsersForm">
+
+<select class="branch-select" id="roleSelect">
+<option value="all">All Roles</option>
+<option value="student">Student</option>
+<option value="faculty">Faculty</option>
+<option value="librarian">Librarian</option>
+</select>
+
+<input type="text" id="searchUsersInput" class="dashboard-search-input" placeholder="Search by name, email or ID...">
+
+<button type="submit" class="dashboard-search-btn">🔍 Search</button>
+<button type="button" class="dashboard-reset-btn" id="resetUsersBtn" title="Reset">✕</button>
+
+</form>
+</section>
+
+<section class="table_of_books">
+
+<table class="booktable">
+
+<thead>
+<tr>
+<th>User ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Role</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="userTable">
+<tr><td colspan="6">Loading...</td></tr>
+</tbody>
+
+</table>
+
+</section>
+
+<section class="alerts">
+<h3>📢 Notifications</h3>
+<ul id="notificationsList">
+<li>Loading...</li>
+</ul>
+</section>
+
+</main>
+
+<footer class="library-footer">
+
+<div class="footer-container">
+
+<div class="footer-section">
+<h3>Library Management System</h3>
+<p>Your digital gateway to knowledge, books, and learning.</p>
+</div>
+
+<div class="footer-section">
+<h4>Quick Links</h4>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="about_us.html">About Us</a></li>
+<li><a href="contact-us.html">Contact Us</a></li>
+<li><a href="help.html">Help</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Support</h4>
+<ul>
+<li><a href="#">Help</a></li>
+<li><a href="#">Rules</a></li>
+<li><a href="#">Contact</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Contact</h4>
+<p>Email: library@lms.com</p>
+<p>Phone: +91 98765 43210</p>
+</div>
+
+</div>
+
+<div class="footer-bottom">
+<p>© 2026 Library Management System | All Rights Reserved</p>
+</div>
+
+</footer>
+
+<!-- LOAD API FIRST -->
+<script src="script.js"></script>
+
+<script>
+
+let allUsers = []
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    // -------------------------
+    // LOAD ADMIN INFO
+    // -------------------------
+    const user = JSON.parse(localStorage.getItem("currentUser"))
+
+    if (user) {
+        document.querySelector(".user_details").innerHTML = `
+            <span><strong>Admin Name:</strong> ${user.fullName || user.username}</span>
+            <span><strong>Admin ID:</strong> ${user._id.slice(-6).toUpperCase()}</span>
+        `
+    }
+
+    // -------------------------
+    // LOAD USERS
+    // -------------------------
+    loadUsers()
+
+    // -------------------------
+    // SEARCH HANDLER
+    // -------------------------
+    document.getElementById("searchUsersForm").addEventListener("submit", handleSearch)
+    document.getElementById("searchUsersInput").addEventListener("input", handleSearch)
+    document.getElementById("roleSelect").addEventListener("change", handleSearch)
+    
+    document.getElementById("resetUsersBtn").addEventListener("click", () => {
+        document.getElementById("searchUsersInput").value = ""
+        document.getElementById("roleSelect").value = "all"
+        renderUsers(allUsers)
+    })
+
+    // -------------------------
+    // LOAD NOTIFICATIONS
+    // -------------------------
+    loadNotifications()
+})
+
+async function loadUsers() {
+    try {
+        const res = await UserService.loadAllUsers()
+        allUsers = res.data || res
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryParam = urlParams.get("q");
+        if (queryParam && !window.hasProcessedInitialSearch) {
+            window.hasProcessedInitialSearch = true;
+            document.getElementById("searchUsersInput").value = queryParam;
+            handleSearch();
+        } else {
+            renderUsers(allUsers)
+        }
+    } catch (err) {
+        console.error("Error loading users:", err)
+    }
+}
+
+function renderUsers(users) {
+    const table = document.getElementById("userTable")
+    table.innerHTML = ""
+
+    if (users.length === 0) {
+        table.innerHTML = `<tr><td colspan="6">No users found</td></tr>`
+        return
+    }
+
+    users.forEach(user => {
+        if(user.role == "admin") return
+        table.innerHTML += `
+        <tr>
+            <td>${user._id.slice(-6).toUpperCase()}</td>
+            <td>${user.fullName || user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.role}</td>
+            <td class="status-Ok">${user.isBlocked ? "Blocked" : "Active"}</td>
+            <td>
+                <button onclick="removeUser('${user._id}')" class="button size">
+                    Remove
+                </button>
+            </td>
+        </tr>
+        `
+    })
+}
+
+async function removeUser(id) {
+    if (!confirm("Remove this user?")) return
+
+    try {
+        await apiFetch(`/users/remove/${id}`, {
+            method: "DELETE"
+        })
+        loadUsers()
+    } catch (err) {
+        console.error("Remove failed:", err)
+    }
+}
+
+function handleSearch(e) {
+    if(e) e.preventDefault()
+
+    const query = document.getElementById("searchUsersInput").value.toLowerCase()
+    const role = document.getElementById("roleSelect").value
+
+    let filtered = allUsers
+
+    if (role !== "all") {
+        filtered = filtered.filter(u => u.role === role)
+    }
+
+    if (query) {
+        filtered = filtered.filter(u =>
+            (u.fullName || "").toLowerCase().includes(query) ||
+            (u.email || "").toLowerCase().includes(query) ||
+            (u._id || "").toLowerCase().includes(query)
+        )
+    }
+
+    renderUsers(filtered)
+}
+
+async function loadNotifications() {
+    try {
+        const res = await NotificationService.loadNotifications()
+        const notifications = res.data || res
+
+        const list = document.getElementById("notificationsList")
+        list.innerHTML = ""
+
+        if (notifications.length === 0) {
+            list.innerHTML = "<li>No notifications</li>"
+        } else {
+            notifications.forEach(n => {
+                const li = document.createElement("li")
+                li.textContent = n.message
+                list.appendChild(li)
+            })
+        }
+
+    } catch (err) {
+        console.error("Notification error:", err)
+    }
+}
+
+</script>
+
+</body>
+</html>

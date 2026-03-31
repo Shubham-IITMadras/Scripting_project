@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | DASHBOARD - LMS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg" alt="logo" loading="lazy">
+<img src="image copy 15.png" alt="logo1">
+</header>
+
+<nav class="navbar">
+<div class="user_details">
+<span><strong>Admin Name:</strong> krishna</span>
+<span><strong>Admin ID:</strong> 123456</span>
+</div>
+
+<div class="logout">
+<a href="login.html">Logout</a>
+</div>
+</nav>
+
+<main class="stu_fac_dashboard">
+
+<section class="welcome">
+<h2>System Overview 📊</h2>
+<p>Overall status and analytics of the Library Management System</p>
+</section>
+
+<section class="works">
+
+<div class="work">
+<h2>Total Users</h2>
+<p id="totalUsers">0</p>
+</div>
+
+<div class="work">
+<h2>Total Librarians</h2>
+<p id="totalLibrarians">0</p>
+</div>
+
+<div class="work">
+<h2>Total Books</h2>
+<p id="totalBooks">0</p>
+</div>
+
+<div class="work">
+<h2>Books Issued</h2>
+<p id="issuedBooks">0</p>
+</div>
+
+<div class="work">
+<h2>Overdue Books</h2>
+<p id="overdueBooks">0</p>
+</div>
+
+<div class="work">
+<h2>Total Fines Collected</h2>
+<p id="totalFines">₹0</p>
+</div>
+
+</section>
+
+
+<section class="table_of_books">
+
+<h2 style="margin-bottom:15px;">Recent System Activity</h2>
+
+<table class="booktable">
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Activity</th>
+<th>User</th>
+<th>Role</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="activityTable">
+
+<tr>
+<td>12-03-2026</td>
+<td>Book Issued</td>
+<td>kc</td>
+<td>Student</td>
+<td class="status-Ok">Success</td>
+</tr>
+
+<tr>
+<td>12-03-2026</td>
+<td>User Blocked</td>
+<td>abc</td>
+<td>Librarian</td>
+<td class="status-due">Blocked</td>
+</tr>
+
+<tr>
+<td>11-03-2026</td>
+<td>Fine Paid</td>
+<td>raju</td>
+<td>Student</td>
+<td class="status-Ok">Completed</td>
+</tr>
+
+<tr>
+<td>11-03-2026</td>
+<td>New Book Added</td>
+<td>Library Staff</td>
+<td>Librarian</td>
+<td class="status-Ok">Added</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</section>
+
+
+<section class="alerts">
+
+<h3>📢 Notifications</h3>
+
+<ul>
+<li>✔ All services running normally</li>
+<li>⚠ 3 user accounts pending verification</li>
+</ul>
+
+</section>
+
+</main>
+
+
+<footer class="library-footer">
+
+<div class="footer-container">
+
+<div class="footer-section">
+<h3>Library Management System</h3>
+<p>Your digital gateway to knowledge, books, and learning.</p>
+</div>
+
+<div class="footer-section">
+<h4>Quick Links</h4>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="about_us.html">About Us</a></li>
+<li><a href="contact-us.html">Contact Us</a></li>
+<li><a href="help.html">Help</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Support</h4>
+<ul>
+<li><a href="#">Help</a></li>
+<li><a href="#">Rules</a></li>
+<li><a href="#">Contact</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Contact</h4>
+<p>Email: library@lms.com</p>
+<p>Phone: +91 98765 43210</p>
+</div>
+
+</div>
+
+<div class="footer-bottom">
+<p>© 2026 Library Management System | All Rights Reserved</p>
+</div>
+
+</footer>
+
+
+<script>
+
+async function loadDashboard(){
+
+try{
+
+const response = await fetch("http://localhost:5000/api/dashboard/stats")
+
+const data = await response.json()
+
+document.getElementById("totalUsers").innerText = data.totalUsers
+document.getElementById("totalLibrarians").innerText = data.totalLibrarians
+document.getElementById("totalBooks").innerText = data.totalBooks
+document.getElementById("issuedBooks").innerText = data.issuedBooks
+document.getElementById("overdueBooks").innerText = data.overdueBooks
+document.getElementById("totalFines").innerText = "₹" + data.totalFines
+
+}catch(err){
+
+console.log("Error loading dashboard",err)
+
+}
+
+}
+
+loadDashboard()
+
+</script>
+
+</body>
+</html>

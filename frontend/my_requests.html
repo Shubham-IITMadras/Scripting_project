@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>My Requests | LMS</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg" alt="logo">
+<img src="image copy 15.png" alt="logo1">
+</header>
+
+
+<nav class="navbar">
+
+<div class="user_details">
+<span><strong>User:</strong> Krishna</span>
+</div>
+
+<div class="logout">
+<a href="login.html">Logout</a>
+</div>
+
+</nav>
+
+
+
+<main class="stu_fac_dashboard">
+
+<section class="welcome">
+<h2>Manage Requests 📩</h2>
+<p>Manage your requests </p>
+</section>
+
+
+
+<section class="table_of_books">
+
+<h2>My Requests</h2>
+
+<table class="booktable">
+
+<thead>
+<tr>
+<th>Book</th>
+<th>Type</th>
+<th>Status</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="requestTable">
+
+<tr>
+<td colspan="5">Loading...</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</section>
+
+</main>
+
+
+
+<footer class="library-footer">
+
+<div class="footer-container">
+
+<div class="footer-section">
+<h3>Library Management System</h3>
+<p>Your digital gateway to knowledge.</p>
+</div>
+
+<div class="footer-section">
+<h4>Quick Links</h4>
+<ul>
+<li><a href="librarian_dashboard.html">Dashboard</a></li>
+<li><a href="manage_requests.html">Requests</a></li>
+<li><a href="borrow_records.html">Borrow Records</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Contact</h4>
+<p>Email: library@lms.com</p>
+<p>Phone: +91 98765 43210</p>
+</div>
+
+</div>
+
+<div class="footer-bottom">
+<p>© 2026 LMS</p>
+</div>
+
+</footer>
+
+
+<script src="script.js"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", loadRequests)
+
+async function loadRequests(){
+
+try{
+
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+        if (user) {
+            // Update username displays
+            document.querySelector(".user_details").innerHTML = `
+                <span><strong>User Name:</strong> ${user.fullName || user.username}</span>
+                <span><strong>User ID:</strong> ${user._id.slice(-6).toUpperCase()}</span>
+            `;
+            document.querySelector(".welcome h2").textContent = `Welcome, ${user.fullName || user.username} 🙌`;
+        }
+
+const table = document.getElementById("requestTable")
+
+const res = await RequestService.getMyRequests()
+
+const requests = res.data || []
+
+table.innerHTML = ""
+
+if(requests.length === 0){
+
+table.innerHTML = `
+<tr>
+<td colspan="5">No requests found</td>
+</tr>
+`
+
+return
+}
+
+requests.forEach(req => {
+
+const row = document.createElement("tr")
+
+const book = req.book ? req.book.title : "Unknown"
+
+const type = req.type
+
+const status = req.status
+
+const date = new Date(req.createdAt).toLocaleDateString("en-IN")
+
+let actionBtn = "-"
+
+if(status === "pending"){
+
+actionBtn = `
+<button class="cancel-btn"
+onclick="cancelRequest('${req._id}')">
+Cancel
+</button>
+`
+}
+
+row.innerHTML = `
+<td>${book}</td>
+
+<td style="text-transform: capitalize;">
+${type}
+</td>
+
+<td class="status-${status}">
+${status}
+</td>
+
+<td>${date}</td>
+
+<td>${actionBtn}</td>
+`
+
+table.appendChild(row)
+
+})
+
+}
+
+catch(err){
+
+console.error(err)
+
+document.getElementById("requestTable").innerHTML = `
+<tr>
+<td colspan="5">Failed to load requests</td>
+</tr>
+`
+
+alert(err.message)
+
+}
+
+}
+
+async function cancelRequest(id){
+
+if(!confirm("Cancel this request?")) return
+
+try{
+
+await RequestService.cancelRequest(id)
+
+alert("Request cancelled successfully")
+
+loadRequests()
+
+}
+
+catch(err){
+
+console.error(err)
+
+alert(err.message)
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>

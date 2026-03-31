@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Due Soon Books | LMS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg">
+<img src="image copy 15.png">
+</header>
+
+<main class="stu_fac_dashboard">
+
+<section class="welcome">
+<h2>Due Soon Books ⏳</h2>
+<p>Books which will be due soon</p>
+</section>
+
+<section class="table_of_books">
+
+<table class="booktable">
+
+<thead>
+<tr>
+<th>Book ID</th>
+<th>Title</th>
+<th>Author</th>
+<th>Due Date</th>
+</tr>
+</thead>
+
+<tbody id="booksTableBody">
+</tbody>
+
+</table>
+
+</section>
+
+</main>
+
+<script>
+
+const BASE_URL = "http://localhost:4000/api/borrow";
+
+async function loadDueSoonBooks(){
+
+const response = await fetch(`${BASE_URL}/due-soon`);
+const result = await response.json();
+
+const records = result.data;
+
+const tableBody = document.getElementById("booksTableBody");
+tableBody.innerHTML="";
+
+records.forEach(record=>{
+
+const book = record.book;
+
+const row = document.createElement("tr");
+
+row.innerHTML = `
+
+<td>${book._id}</td>
+<td>${book.title}</td>
+<td>${book.author}</td>
+<td>${new Date(record.dueDate).toLocaleDateString()}</td>
+
+`;
+
+tableBody.appendChild(row);
+
+});
+
+}
+
+loadDueSoonBooks();
+
+</script>
+
+</body>
+</html>

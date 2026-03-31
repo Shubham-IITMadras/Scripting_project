@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIBRARIAN DASHBOARD | LMS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg" alt="logo" loading="lazy">
+<img src="image copy 15.png" alt="logo1">
+</header>
+
+<nav class="navbar">
+<div class="user_details">
+<span><strong>Librarian Name:</strong> krishna</span>
+<span><strong>Librarian ID:</strong> 123456</span>
+</div>
+
+<div class="logout">
+<a href="#" id="logout-btn">Logout</a>
+</div>
+</nav>
+
+<main class="stu_fac_dashboard">
+
+<section class="welcome">
+<h2>Remove Books 🗑️</h2>
+<p>Delete damaged, outdated, or unused books from the library records</p>
+</section>
+
+<section class="table_of_books">
+
+<table class="booktable">
+
+<thead>
+<tr>
+<th>Cover</th>
+<th>ISBN</th>
+<th>Book Title</th>
+<th>Author</th>
+<th>Edition</th>
+<th>Branch</th>
+<th>Available</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="bookTableBody"></tbody>
+
+</table>
+
+</section>
+
+</main>
+
+<!-- ✅ Load API FIRST -->
+<script src="script.js" defer></script>
+
+<script defer>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+const tableBody = document.getElementById("bookTableBody")
+
+async function loadBooks(){
+
+try {
+
+const result = await BookService.getAllBooks()
+const books = result.data
+
+tableBody.innerHTML = ""
+
+books.forEach(book => {
+
+const row = document.createElement("tr")
+
+row.innerHTML = `
+<td><img src="image copy 16.png" class="book-img"></td>
+<td>${book.isbn_no}</td>
+<td>${book.title}</td>
+<td>${book.author}</td>
+<td>${book.edition}</td>
+<td>${book.branch}</td>
+<td>${book.availableCopies}/${book.totalCopies}</td>
+<td>
+<button class="button" data-isbn="${book.isbn_no}">
+Remove
+</button>
+</td>
+`
+
+tableBody.appendChild(row)
+
+})
+
+attachDeleteEvents()
+
+} catch(error) {
+console.error(error)
+alert("Failed to load books")
+}
+
+}
+
+function attachDeleteEvents(){
+
+const buttons = document.querySelectorAll(".button")
+
+buttons.forEach(btn => {
+btn.addEventListener("click", async function(){
+
+const isbn = this.getAttribute("data-isbn")
+
+const confirmDelete = confirm("Are you sure you want to remove this book?")
+if(!confirmDelete) return
+
+try {
+
+const response = await BookService.removeBook(isbn)
+
+alert(response.message || "Book removed successfully")
+
+loadBooks()
+
+} catch(error) {
+console.error(error)
+alert(error.message)
+}
+
+})
+})
+
+}
+
+loadBooks()
+
+})
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UPDATE BOOK | LMS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg" alt="logo" loading="lazy">
+<img src="image copy 15.png" alt="logo1">
+</header>
+
+<nav class="navbar">
+<div class="user_details">
+<span><strong>Librarian Name:</strong> krishna</span>
+<span><strong>Librarian ID:</strong> 123456</span>
+</div>
+
+<div class="logout">
+<a href="#" id="logout-btn">Logout</a>
+</div>
+</nav>
+
+<main class="stu_fac_dashboard">
+
+<!-- DISPLAY LIST OF BOOKS (Shown by Default) -->
+<div id="booksListContainer">
+<section class="welcome">
+<h2>Update Books 📖</h2>
+<p>Select a book below to edit its details</p>
+</section>
+
+<section class="table_of_books">
+<h2>Available Books</h2>
+<table class="booktable">
+<thead>
+<tr>
+<th>Cover</th>
+<th>Book ID</th>
+<th>Title</th>
+<th>Author</th>
+<th>Edition</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="booksTableBody">
+<tr>
+<td colspan="6">Loading...</td>
+</tr>
+</tbody>
+</table>
+</section>
+</div>
+
+<!-- UPDATE FORM (Shown if ?id= is in URL) -->
+<div id="updateFormContainer" style="display: none;">
+<div class="add-book-container">
+
+<h2>Update Book Details</h2>
+<button type="button" onclick="window.location.href='update_books.html'" style="margin-bottom: 20px; padding: 5px 10px; cursor: pointer;">&larr; Back to List</button>
+
+<form class="book-form" id="updateBookForm">
+
+<div class="form-group">
+<label>Book ID</label>
+<input type="text" placeholder="Enter Book ID to Update" id="bookId" required>
+</div>
+
+<div class="form-group">
+<label>Book Title</label>
+<input type="text" placeholder="Update Book Title" id="bookTitle">
+</div>
+
+<div class="form-group">
+<label>Author Name</label>
+<input type="text" placeholder="Update Author Name" id="bookAuthor">
+</div>
+
+<div class="form-group">
+<label>Edition</label>
+<input type="text" placeholder="Update Edition" id="bookEdition">
+</div>
+
+<div class="form-group">
+<label>Category</label>
+<select id="bookBranch">
+<option value="">Select Branch</option>
+<option value="CSE">CSE</option>
+<option value="ECE">ECE</option>
+<option value="EE">EE</option>
+<option value="ME">ME</option>
+<option value="CE">CE</option>
+<option value="IT">IT</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Year of Publication</label>
+<input type="number" placeholder="Update Year" id="bookYear">
+</div>
+
+<div class="form-group">
+<label>Total Copies</label>
+<input type="number" placeholder="Update Copies" id="bookQuantity">
+</div>
+
+<button type="submit" class="add-btn">Update Book</button>
+
+</form>
+
+</div>
+</div>
+
+<section class="alerts">
+<h3>📢 Notifications</h3>
+<ul>
+<li>✔ All services running normally</li>
+<li>⚠ 3 user accounts pending verification</li>
+</ul>
+</section>
+
+</main>
+
+<footer class="library-footer">
+
+<div class="footer-container">
+
+<div class="footer-section">
+<h3>Library Management System</h3>
+<p>Your digital gateway to knowledge, books, and learning.</p>
+</div>
+
+<div class="footer-section">
+<h4>Quick Links</h4>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="about_us.html">About Us</a></li>
+<li><a href="contact-us.html">Contact Us</a></li>
+<li><a href="help.html">Help</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Support</h4>
+<ul>
+<li><a href="#">Help</a></li>
+<li><a href="#">Rules</a></li>
+<li><a href="#">Contact</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Contact</h4>
+<p>Email: library@lms.com</p>
+<p>Phone: +91 98765 43210</p>
+</div>
+
+</div>
+
+<div class="footer-bottom">
+<p>© 2026 Library Management System | All Rights Reserved</p>
+</div>
+
+</footer>
+
+<script src="script.js" defer></script>
+
+<script defer>
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+const form = document.getElementById("updateBookForm")
+const bookIdInput = document.getElementById("bookId")
+const titleInput = document.getElementById("bookTitle")
+const authorInput = document.getElementById("bookAuthor")
+const editionInput = document.getElementById("bookEdition")
+const branchSelect = document.getElementById("bookBranch")
+const yearInput = document.getElementById("bookYear")
+const quantityInput = document.getElementById("bookQuantity")
+
+// Check URL params for Edit ACTION
+const urlParams = new URLSearchParams(window.location.search);
+const editId = urlParams.get("id");
+
+if (editId) {
+    // Show Form, Hide List
+    document.getElementById("booksListContainer").style.display = "none";
+    document.getElementById("updateFormContainer").style.display = "block";
+
+    bookIdInput.value = editId;
+    bookIdInput.readOnly = true;
+    
+    try {
+        const res = await BookService.getAllBooks();
+        const allBooks = res.data || res;
+        const targetBook = allBooks.find(b => b._id === editId);
+        if(targetBook) {
+            titleInput.value = targetBook.title || "";
+            authorInput.value = targetBook.author || "";
+            editionInput.value = targetBook.edition || "";
+            
+            // Match branch ignoring case
+            if (targetBook.branch) {
+                const branchValue = targetBook.branch.toUpperCase();
+                const optionExists = Array.from(branchSelect.options).some(opt => opt.value.toUpperCase() === branchValue);
+                if (optionExists) {
+                    branchSelect.value = branchValue;
+                }
+            }
+            
+            yearInput.value = targetBook.publish_year || targetBook.year || "";
+            quantityInput.value = targetBook.totalCopies || targetBook.quantity || "";
+        }
+    } catch(err) {
+        console.error("Failed to load book for editing", err);
+    }
+} else {
+    // Load list of books
+    try {
+        const res = await BookService.getAllBooks();
+        const allBooks = res.data || res;
+        
+        const tableBody = document.getElementById("booksTableBody");
+        tableBody.innerHTML = "";
+        
+        if(allBooks.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6">No books found.</td></tr>';
+        } else {
+            allBooks.forEach(book => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><img src="${book.bookImage || 'image copy 16.png'}" class="book-img" style="width:50px;"></td>
+                    <td>${book._id}</td>
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.edition}</td>
+                    <td>
+                        <button class="button">
+                            <a href="update_books.html?id=${book._id}">Update</a>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    } catch(err) {
+        console.error("Failed to load books", err);
+    }
+}
+
+form.addEventListener("submit", async function(e){
+
+e.preventDefault()
+
+const bookId = bookIdInput.value
+const updatedData = {}
+
+const title = titleInput.value
+const author = authorInput.value
+const edition = editionInput.value
+const branch = branchSelect.value
+const year = yearInput.value
+const quantity = quantityInput.value
+
+if(title) updatedData.title = title
+if(author) updatedData.author = author
+if(edition) updatedData.edition = edition
+if(branch) updatedData.branch = branch
+if(year) updatedData.publish_year = year
+if(quantity) updatedData.totalCopies = quantity
+
+try {
+
+const response = await BookService.updateBook(bookId, updatedData)
+
+alert(response.message || "Book updated successfully")
+
+form.reset()
+
+} catch(error) {
+
+console.error(error)
+alert(error.message || "Something went wrong")
+
+}
+
+})
+
+})
+
+</script>
+
+</body>
+</html>

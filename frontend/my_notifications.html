@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f5f5f5;
+    margin:0;
+    padding:0;
+}
+
+.container{
+    width:600px;
+    margin:40px auto;
+}
+
+h1{
+    text-align:center;
+}
+
+.notification-box{
+    background:white;
+    border-radius:8px;
+    padding:10px;
+    margin-top:20px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.notification{
+    padding:15px;
+    border-bottom:1px solid #eee;
+    cursor:pointer;
+}
+
+.notification:last-child{
+    border-bottom:none;
+}
+
+.unread{
+    background:#e8f2ff;
+    font-weight:bold;
+}
+
+.time{
+    font-size:12px;
+    color:gray;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🔔 Notifications</h1>
+
+<div id="notificationList" class="notification-box">
+Loading notifications...
+</div>
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+
+async function loadNotifications(){
+
+    const response = await NotificationService.loadNotifications()
+
+    const notifications = response.data
+
+    const list = document.getElementById("notificationList")
+
+    list.innerHTML = ""
+
+    if(!notifications || notifications.length === 0){
+        list.innerHTML = "<p>No notifications</p>"
+        return
+    }
+
+    notifications.forEach(n => {
+
+        const div = document.createElement("div")
+
+        div.className = "notification"
+
+        if(!n.read){
+            div.classList.add("unread")
+        }
+
+        div.innerHTML = `
+            <div>${n.message}</div>
+            <div class="time">${new Date(n.createdAt).toLocaleString()}</div>
+        `
+
+        div.onclick = () => markAsRead(n._id, div)
+
+        list.appendChild(div)
+
+    })
+}
+
+async function markAsRead(id, element){
+
+    await apiFetch(`/notification/${id}`,{
+        method:"PATCH"
+    })
+
+    element.classList.remove("unread")
+}
+
+loadNotifications()
+
+</script>
+
+</body>
+</html>

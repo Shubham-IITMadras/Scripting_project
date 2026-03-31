@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | CampusLibrary</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="logo">
+          
+            <h1>Campus<span>Library</span></h1>
+            <p>LIBRARY MANAGEMENT SYSTEM</p>
+        </div>
+        
+        <form class="login-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" class="login-btn">Log In</button>
+            
+            <div class="options">
+                <a href="#">Forgot password?</a>
+                <a href="#">Help Center</a>
+            </div>
+        </form>
+        
+        
+        <div class="signup-link">
+            New to CampusLibrary? <a href="register.html">Create an account</a>
+        </div>
+    </div>
+    
+
+
+
+    <script src="script.js"></script>
+    <script>
+        const form = document.querySelector(".login-form");
+
+        form.addEventListener("submit", async function(e){
+            e.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            try {
+                const response = await UserService.login({ email, password });
+                const loginData = response.data; // Since ApiResponse sets { data: { user, accessToken, refreshToken } }
+                console.log("Login successful:", response);
+
+                localStorage.setItem("currentUser", JSON.stringify(loginData.user));
+                let role = loginData.user.role;
+
+                if (role === "librarian") window.location.href = "librarian_dashboard.html";
+                else if (role === "admin") window.location.href = "admin_dashboard.html";
+                else window.location.href = "student_faculty_dashboard.html";
+            } catch (error) {
+                console.error("Login Error:", error);
+                alert("Login failed: " + error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

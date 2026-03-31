@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Transaction | LMS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <img src="nit-kkr-logo.jpeg" alt="logo" loading="lazy">
+        <img src="image copy 15.png" alt="logo1" >
+        
+
+    </header>
+
+    <nav class="navbar">
+        <div class="user_details">
+        <span><strong>Librarian Name:</strong>krishna</span>
+        <span><strong>Librarian ID:</strong>123456</span>
+    </div>
+        <div class="logout">
+            <a href="login.html">Logout</a>
+        </div>
+    </nav>
+
+    <main class="stu_fac_dashboard">
+        <section class="welcome">
+        <h2>Verify Transactions ✔</h2>
+        <p>Approve or reject book issue and return requests</p>
+    </section>
+
+    
+    <div class="search-container">
+        <form class="search-bar">
+            <select class="branch-select">
+                <option>All Transactions</option>
+                <option>Issue Requests</option>
+                <option>Return Requests</option>
+            </select>
+
+            <input
+                type="text"
+                class="search-input"
+                placeholder="Search by student name or book ID"
+            >
+
+            <button type="submit" class="search-btn">🔍</button>
+        </form>
+    </div>
+
+    
+    <section class="table_of_books">
+        <table class="booktable">
+            <thead>
+                <tr>
+                    <th>Transaction ID</th>
+                    <th>Student Name</th>
+                    <th>Roll No</th>
+                    <th>Book Title</th>
+                    <th>Transaction Type</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>T101</td>
+                    <td>Rahul Sharma</td>
+                    <td>221CS101</td>
+                    <td>Operating Systems</td>
+                    <td>Issue</td>
+                    <td>12-03-2026</td>
+                    <td class="status-due">Pending</td>
+                    <td>
+                        <button class="button">Approve</button>
+                        <button class="button">Reject</button>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>T102</td>
+                    <td>Anjali Verma</td>
+                    <td>221EC045</td>
+                    <td>Database Management Systems</td>
+                    <td>Return</td>
+                    <td>11-03-2026</td>
+                    <td class="status-due">Pending</td>
+                    <td>
+                        <button class="button">Verify</button>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>T103</td>
+                    <td>Rohit Kumar</td>
+                    <td>221ME032</td>
+                    <td>Computer Networks</td>
+                    <td>Issue</td>
+                    <td>10-03-2026</td>
+                    <td class="status-Ok">Approved</td>
+                    <td>—</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+
+
+<section class="alerts">
+        <h3>📢 Notifications</h3>
+        <ul>
+            <li>⚠ 5 pending borrow/return requests</li>
+                <li>✔ All book records updated today</li>
+        </ul>
+    </section>
+
+
+    </main>
+
+
+
+
+
+    <footer class="library-footer">
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Library Management System</h3>
+      <p>Your digital gateway to knowledge, books, and learning.</p>
+    </div>
+
+    <div class="footer-section">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about_us.html">About Us </a></li>
+        <li><a href="contact-us.html">Contact Us</a></li>
+        <li><a href="help.html">Help</a></li>
+        
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Help</a></li>
+        <li><a href="#">Rules</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h4>Contact</h4>
+      <p>Email: library@lms.com</p>
+      <p>Phone: +91 98765 43210</p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2026 Library Management System | All Rights Reserved</p>
+  </div>
+</footer>
+
+</body>
+</html>

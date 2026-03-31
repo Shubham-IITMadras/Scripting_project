@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Search | LMS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <img src="nit-kkr-logo.jpeg" alt="logo" loading="lazy">
+    <img src="image copy 15.png" alt="logo1">
+</header>
+
+<nav class="navbar">
+    <div class="user_details">
+        <span><strong>User Name:</strong> krishna</span>
+        <span><strong>User Id:</strong> 123456</span>
+    </div>
+    <div class="logout">
+        <a href="login.html">Logout</a>
+    </div>
+</nav>
+
+<main class="stu_fac_dashboard">
+
+    <section class="welcome">
+        <h2>Browse Books 📖</h2>
+        <p>Explore available books in the library</p>
+    </section>
+
+    <!-- SEARCH BAR -->
+    <section class="dashboard-search">
+        <form class="dashboard-search-bar" id="searchForm">
+            
+            <select class="branch-select" id="branchSelect">
+                <option value="all">All Branches</option>
+                <option value="cse">Computer Science (CSE)</option>
+                <option value="ece">Electronics (ECE)</option>
+                <option value="ee">Electrical (EE)</option>
+                <option value="me">Mechanical (ME)</option>
+                <option value="ce">Civil (CE)</option>
+                <option value="it">Information Technology (IT)</option>
+            </select>
+
+            <div class="autocomplete-wrapper">
+                <input 
+                    type="text" 
+                    id="bookSearchInput"
+                    class="dashboard-search-input" 
+                    placeholder="Search books by name, author, or edition..."
+                    autocomplete="off"
+                >
+                <div class="autocomplete-list" id="bookAutoList"></div>
+            </div>
+
+            <button type="submit" class="dashboard-search-btn">🔍 Search</button>
+            <button type="button" class="dashboard-reset-btn" id="resetBtn" title="Reset">✕</button>
+
+        </form>
+    </section>
+
+    <!-- BOOKS -->
+    <section class="books" id="bookContainer"></section>
+
+</main>
+
+<footer class="library-footer">
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3>Library Management System</h3>
+            <p>Your digital gateway to knowledge.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+
+<script>
+
+let allBooks = [];
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    // USER INFO
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    if (user) {
+        document.querySelector(".user_details").innerHTML = `
+            <span><strong>User Name:</strong> ${user.fullName || user.username}</span>
+            <span><strong>User ID:</strong> ${user._id.slice(-6).toUpperCase()}</span>
+        `;
+    }
+
+    // FETCH BOOKS
+    try {
+        const response = await BookService.getAllBooks();
+        allBooks = response.data || [];
+        renderBooks(allBooks);
+    } catch (err) {
+        console.error("Error fetching books:", err);
+    }
+
+    // SEARCH ELEMENTS
+    const searchInput = document.getElementById("bookSearchInput");
+    const branchSelect = document.getElementById("branchSelect");
+    const resetBtn = document.getElementById("resetBtn");
+
+    // FILTER FUNCTION
+    function filterBooks() {
+        const branchFilter = branchSelect.value.toLowerCase();
+        const searchQuery = searchInput.value.trim().toLowerCase();
+
+        let filtered = allBooks;
+
+        if (branchFilter !== "all") {
+            filtered = filtered.filter(b => 
+                b.branch.toLowerCase() === branchFilter
+            );
+        }
+
+        if (searchQuery !== "") {
+            // Priority 1: Exact Title Match (so clicking a suggestion shows ONLY those exact books)
+            const exactMatches = filtered.filter(b => b.title.toLowerCase() === searchQuery);
+            
+            if (exactMatches.length > 0) {
+                filtered = exactMatches;
+            } else {
+                // Priority 2: Partial Match
+                filtered = filtered.filter(b => 
+                    b.title.toLowerCase().includes(searchQuery) || 
+                    b.author.toLowerCase().includes(searchQuery) ||
+                    (b.edition && b.edition.toLowerCase().includes(searchQuery))
+                );
+            }
+        }
+
+        renderBooks(filtered);
+    }
+
+    // EVENTS
+    searchInput.addEventListener("input", filterBooks);
+    branchSelect.addEventListener("change", filterBooks);
+
+    document.getElementById("searchForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        filterBooks();
+    });
+
+    resetBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        branchSelect.value = "all";
+        renderBooks(allBooks);
+    });
+
+});
+
+
+// ===== AUTOCOMPLETE =====
+const acInput = document.getElementById("bookSearchInput");
+const acList = document.getElementById("bookAutoList");
+let acIndex = -1;
+
+acInput.addEventListener("input", function () {
+    const val = this.value.trim().toLowerCase();
+    acList.innerHTML = "";
+    acIndex = -1;
+
+    if (val.length < 1) {
+        acList.classList.remove("active");
+        return;
+    }
+
+    const matches = allBooks.filter(b =>
+        (b.title || "").toLowerCase().includes(val) ||
+        (b.author || "").toLowerCase().includes(val) ||
+        (b.edition && b.edition.toLowerCase().includes(val))
+    ).slice(0, 8);
+
+    if (matches.length === 0) {
+        acList.classList.remove("active");
+        return;
+    }
+
+    matches.forEach(b => {
+        const div = document.createElement("div");
+        div.className = "autocomplete-item";
+        div.innerHTML = `<span class="item-title">${b.title}</span><span class="item-author">by ${b.author}</span>`;
+        div.addEventListener("click", () => {
+            acInput.value = b.title;
+            acList.classList.remove("active");
+            // Also update branch filter to All if they explicitly search for a book
+            document.getElementById("branchSelect").value = "all";
+            // And trigger search form submission to filter explicitly
+            document.getElementById("searchForm").dispatchEvent(new Event("submit"));
+        });
+        acList.appendChild(div);
+    });
+
+    acList.classList.add("active");
+});
+
+acInput.addEventListener("keydown", function (e) {
+    const items = acList.querySelectorAll(".autocomplete-item");
+    if (e.key === "ArrowDown") {
+        e.preventDefault();
+        acIndex = Math.min(acIndex + 1, items.length - 1);
+        highlightAC(items);
+    } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        acIndex = Math.max(acIndex - 1, 0);
+        highlightAC(items);
+    } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (acIndex >= 0 && items[acIndex]) {
+            items[acIndex].click();
+        } else {
+            acList.classList.remove("active");
+            document.getElementById("searchForm").dispatchEvent(new Event("submit"));
+        }
+    }
+});
+
+function highlightAC(items) {
+    items.forEach((el, i) => el.classList.toggle("selected", i === acIndex));
+}
+
+document.addEventListener("click", function (e) {
+    if (!acInput.contains(e.target) && !acList.contains(e.target)) {
+        acList.classList.remove("active");
+    }
+});
+
+
+// RENDER BOOKS
+function renderBooks(books) {
+    const container = document.getElementById("bookContainer");
+    container.innerHTML = "";
+
+    if (books.length === 0) {
+        container.innerHTML = "<p>No books found.</p>";
+        return;
+    }
+
+    books.forEach(book => {
+        const isAvailable = book.availableCopies > 0;
+        const statusText = isAvailable ? "Available" : "Not Available";
+        const btnText = isAvailable ? "Request Book" : "Reserve";
+
+        const imgSrc = book.coverImage || "image copy 16.png";
+
+        container.innerHTML += `
+            <div class="book">
+                <img src="${imgSrc}" class="imgbook">
+                <h3>${book.title}</h3>
+                <p><strong>Author:</strong> ${book.author}</p>
+                <p><strong>Edition:</strong> ${book.edition || 'N/A'}</p>
+                <p><strong>Branch:</strong> ${book.branch}</p>
+                <p>${statusText} (${book.availableCopies}/${book.totalCopies})</p>
+                <button onclick="handleBookRequest('${book._id}')">${btnText}</button>
+            </div>
+        `;
+    });
+}
+
+
+// REQUEST BOOK
+async function handleBookRequest(bookId) {
+    try {
+        await RequestService.createRequest({ bookId, type: "issue" });
+        alert("Request submitted!");
+    } catch (err) {
+        alert("Error: " + err.message);
+    }
+}
+
+</script>
+
+</body>
+</html>

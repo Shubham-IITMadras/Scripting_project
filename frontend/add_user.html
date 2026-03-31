@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add User | LMS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+<img src="nit-kkr-logo.jpeg" alt="logo" loading="lazy">
+<img src="image copy 15.png" alt="logo1">
+</header>
+
+<nav class="navbar">
+<div class="user_details">
+<span><strong>Admin Name:</strong> <span id="adminNameDisplay">Loading...</span></span>
+<span><strong>Admin ID:</strong> <span id="adminIdDisplay">Loading...</span></span>
+</div>
+
+<div class="logout">
+<a href="login.html">Logout</a>
+</div>
+</nav>
+
+<main class="stu_fac_dashboard">
+
+<div class="add-book-container">
+<h2>Add New User</h2>
+
+<form class="add-book-form" id="addUserForm">
+
+<div class="form-group">
+<label>Full Name</label>
+<input type="text" placeholder="Enter full name" id="userFullName" required>
+</div>
+
+<div class="form-group">
+<label>Email</label>
+<input type="email" placeholder="Enter email address" id="userEmail" required>
+</div>
+
+<div class="form-group">
+<label>Role</label>
+<select id="userRole" required>
+<option value="">Select Role</option>
+<option value="student">Student</option>
+<option value="faculty">Faculty</option>
+<option value="librarian">Librarian</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Password</label>
+<input type="password" placeholder="Enter password" id="userPassword" required>
+</div>
+
+<button type="submit" class="add-btn">Add User</button>
+
+</form>
+</div>
+
+<section class="alerts">
+<h3>📢 Notifications</h3>
+<ul id="notificationsList">
+<li>✔ Keep track of user roles</li>
+</ul>
+</section>
+
+</main>
+
+<footer class="library-footer">
+<div class="footer-container">
+<div class="footer-section">
+<h3>Library Management System</h3>
+<p>Your digital gateway to knowledge, books, and learning.</p>
+</div>
+
+<div class="footer-section">
+<h4>Quick Links</h4>
+<ul>
+<li><a href="admin_dashboard.html">Dashboard</a></li>
+<li><a href="manage_users.html">Manage Users</a></li>
+<li><a href="login.html">Logout</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Support</h4>
+<ul>
+<li><a href="#">Help</a></li>
+<li><a href="#">Rules</a></li>
+<li><a href="#">Contact</a></li>
+</ul>
+</div>
+
+<div class="footer-section">
+<h4>Contact</h4>
+<p>Email: library@lms.com</p>
+<p>Phone: +91 98765 43210</p>
+</div>
+</div>
+
+<div class="footer-bottom">
+<p>© 2026 Library Management System | All Rights Reserved</p>
+</div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const user = JSON.parse(localStorage.getItem("currentUser"))
+    if (user) {
+        const nameEl = document.getElementById("adminNameDisplay");
+        const idEl = document.getElementById("adminIdDisplay");
+        if(nameEl) nameEl.textContent = user.fullName || user.username;
+        if(idEl) idEl.textContent = user._id ? user._id.slice(-6).toUpperCase() : "";
+    }
+});
+
+const form = document.getElementById("addUserForm")
+
+form.addEventListener("submit", async function(e){
+    e.preventDefault()
+
+    const newUser = {
+        fullName: document.getElementById("userFullName").value,
+        email: document.getElementById("userEmail").value,
+        role: document.getElementById("userRole").value,
+        password: document.getElementById("userPassword").value
+    }
+
+    try{
+        await apiFetch("/users/add", {
+            method: "POST",
+            body: newUser
+        });
+        alert("User Added successfully");
+        form.reset();
+        window.location.href = "manage_users.html";
+    } catch(error){
+        console.error(error);
+        alert("Failed to add user: " + error.message);
+    }
+})
+</script>
+
+</body>
+</html>
